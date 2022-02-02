@@ -1,5 +1,5 @@
 --Está verificado con los PDF de la UTN
---J:\Dev\TSP - SQL Server\02 Segundo Cuatrimestre\Segunda Unidad 2019\Practicos
+--se usa ~ para uno u otro, - es para rangos, verificado por mi
 --GUIA DE EJERCICIOS 02 --------------------------------------------------------------
 
 --1) Liste Código, descripción, stock mínimo y precio de todos los artículos, ordenados por precio y descripción.
@@ -148,69 +148,107 @@ order by 'Vendedor' desc, f.fecha desc
 --para los casos en que la fecha de vta oscile entre el 1/02/2008 y el 1/03/2010
 --y que el apellido del cliente no contenga C
 
+select f.nro_factura, c.nom_cliente + space (3) + c.ape_cliente 'Cliente', v.nom_vendedor +space(3)+ v.ape_vendedor 'Vendedor', f.fecha
+from facturas f, clientes c, vendedores v
+where f.cod_cliente = c.cod_cliente 
+and f.cod_vendedor = v.cod_vendedor
+and f.fecha between '2008-02-01' and '2010-03-01'
+and c.ape_cliente not like '%c%'
 
 
+--3) Liste el número de factura, la fecha de venta, la descripción del artículo y el importe(precio por cantidad);
+--para los casos en que el año de venta sea uno de los siguientes: 2009, 2010 y 2012 y la descripción no comience con R.
+--Ordene por número de factura e importe, este en forma descendente. Rotule.
 
 
+select f.nro_factura, f.fecha, a.descripcion, df.pre_unitario * df.cantidad 'Importe'
+from facturas f, detalle_facturas df, articulos a
+where f.nro_factura = df.nro_factura and df.cod_articulo = a.cod_articulo
+and year(f.fecha) in (2009,2010,2012)
+and a.descripcion not like 'r%'
+order by f.nro_factura desc, 'Importe' desc
+
+--4)Se quiere saber que artículos se vendieron, siempre que el precio al que fue vendido no varíe entre $10 y $50.
+--Muestre código y descripción, cantidad
+
+select a.cod_articulo,a.descripcion, df.cantidad
+from detalle_facturas df, articulos a
+where df.cod_articulo = a.cod_articulo
+and df.pre_unitario not between 10 and 50
+
+--5)Liste el nro de factura, la fecha de vta, el vendedor (apellido y nombre), el cliente(apel.y nombre), el artículo (descripción), la canttidad 
+--y el importe (precio por cant); para teléfono. o direcciones de e-mail conocidas (del cliente)
+--y siempre que el importe sea superior a $50. Rotule como FACTURA, FECHA, VENDEDOR, CLIENTE, artículo, CANTIDAD, IMPORTE.
+--Ordene por vendedor, factura y artículo.
+
+select f.nro_factura 'FACTURA', f.fecha 'FECHA', v.ape_vendedor +space(2)+ v.nom_vendedor'VENDEDOR', c.ape_cliente +space(2)+ c.nom_cliente 'CLIENTE',a.descripcion 'ARTICULO', df.cantidad 'CANTIDAD', df.pre_unitario * df.cantidad 'IMPORTE'
+from facturas f, vendedores v, clientes c,detalle_facturas df, articulos a
+where f.cod_vendedor = v.cod_vendedor and f.cod_cliente = c.cod_cliente and f.nro_factura = df.nro_factura and df.cod_articulo = a.cod_articulo
+and (c.nro_tel is not null or c.[e-mail] is not null)
+and df.pre_unitario * df.cantidad > 50
+order by 3, 1,5 asc
 
 
+--6)Se quiere saber a que cliente, de que barrio, vendedor y en que fecha se les vendió con los siguientes nros.de factura: 12, 18, 1, 3, 35, 26 y 29
+
+select c.ape_cliente +space(2)+c.nom_cliente 'Cliente', b.barrio 'Barrio',v.ape_vendedor+space(2)+v.nom_vendedor, f.fecha
+from facturas f, clientes c, vendedores v, barrios b
+where f.cod_cliente = c.cod_cliente and f.cod_vendedor = v.cod_vendedor and b.cod_barrio = c.cod_barrio
+and f.nro_factura in (12,18,1,3,35,26,29)
 
 
+--7)Se quiere saber que artículos se vendieron, siempre que el número de factura no oscile entre 7 y 36.
+-- Liste la descripción, cantidad e importe. Ordene por descripción y cantidad. Sin duplicados
+
+select distinct a.descripcion, df.cantidad, df.pre_unitario * df.cantidad 'Importe'
+from articulos a, detalle_facturas df
+where a.cod_articulo = df.cod_articulo
+and df.nro_factura not between 7 and 36
+order by a.descripcion, df.cantidad asc
 
 
+--8)Liste el nro de factura, la fecha de venta, el cliente, la descripción del artículo, la cant y el importe;
+--para apellidos de cliente o descripciones que comiencen con letras que van de la L a S.Ordene por cliente, fecha y artículo.
+
+select f.nro_factura, f.fecha, c.ape_cliente+space(2)+c.nom_cliente'Cliente', a.descripcion,df.cantidad,df.pre_unitario * df.cantidad 'Importe'
+from facturas f,detalle_facturas df, articulos a, clientes c
+where f.nro_factura = df.nro_factura and df.cod_articulo = a.cod_articulo and f.cod_cliente = c.cod_cliente
+and (c.ape_cliente like '[L-S]%' or a.descripcion like '[L-S]%')
+order by c.cod_cliente, f.fecha, a.descripcion asc
 
 
+--9) Se quiere saber que artículos se vendieron en lo que va del año. Muestre código, descripción, stock y precio unitario,sin duplicados.
+
+select distinct a.cod_articulo, a.descripcion, a.stock_minimo, a.pre_unitario
+from articulos a, detalle_facturas df, facturas f
+where a.cod_articulo = df.cod_articulo and f.nro_factura = df.nro_factura
+and year(f.fecha) = year(getdate()) - 4
 
 
+--10)Se quiere saber a que clientes se les vendió el año pasado, que vendedor que realizó la vta., 
+--y que artículo compró, siempre que el barrio del cliente comience con letras de la A a la P, 
+--siempre que el vendedor que les vendió sea menor de 35 años.
 
 
+select c.ape_cliente +space(2)+ c.nom_cliente 'Cliente', v.ape_vendedor+space(2)+v.nom_vendedor, a.descripcion
+from facturas f, detalle_facturas df, clientes c, vendedores v, articulos a, barrios b
+where f.nro_factura = df.nro_factura and c.cod_cliente = f.cod_cliente and f.cod_vendedor = v.cod_vendedor and a.cod_articulo = df.cod_articulo and c.cod_barrio = b.cod_barrio
+and year(f.fecha) = year(getdate()) -5
+and b.barrio like '[a-p]%'
+and (  year(v.fec_nac) - year(getdate())  ) < 35
 
 
+--11) Liste número de factura, fecha, vendedor, articulo, cantidad e importe; 
+--para los casos en que los prec.unitarios oscilen entre 2 y 6 
+--y para nombres de vendedor cuyo nombre comience con letras que van de la L a la M.
+--Ordene por vendedor, fecha e importe.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+select f.nro_factura, f.fecha, v.ape_vendedor+space(2)+ v.nom_vendedor, a.descripcion, df.cantidad, df.pre_unitario * df.cantidad 'Importe' 
+from facturas f, detalle_facturas df, vendedores v, articulos a
+where df.cod_articulo = a.cod_articulo and df.nro_factura = f.nro_factura and f.cod_vendedor = v.cod_vendedor
+and a.pre_unitario between 2 and 6
+and v.nom_vendedor like '[L-m]%'
+order by v.nom_vendedor, f.fecha, 'Importe' asc
 
 
 
