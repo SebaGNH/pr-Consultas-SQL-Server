@@ -251,6 +251,42 @@ and v.nom_vendedor like '[L-m]%'
 order by v.nom_vendedor, f.fecha, 'Importe' asc
 
 
+--12) Se desea emitir un listado de clientes  que compraron en enero(de cualquier año),
+--además saber qué compraron cuánto gastaron (mostrar los datos en forma conveniente) 
+
+select c.ape_cliente +space(2)+c.nom_cliente 'Cliente', month(f.fecha)'Mes', a.descripcion, df.pre_unitario * df.cantidad 'Importe'
+from facturas f, clientes c, articulos a, detalle_facturas df
+where df.nro_factura = f.nro_factura and df.cod_articulo = a.cod_articulo and f.cod_cliente = c.cod_cliente
+and month(f.fecha) = 01
+
+
+--13) Emitir un reporte de artículos vendidos en el 2010 a que precios se vendieron y qué precio tienen hoy.
+
+select a.descripcion 'Articulos', year(f.fecha)'Fecha', df.pre_unitario 'Precio vendido', a.pre_unitario 'Precio Actual'
+from detalle_facturas df, articulos a, facturas f
+where df.cod_articulo = a.cod_articulo and f.nro_factura = df.nro_factura
+and year(f.fecha) = 2010       -- también se puede usar (DATEPART(year,fa.fecha)=2010), es lo mismo
+
+
+--14) Listar los vendedores que hace 10 años le vendieron a clientes cuyos nombres o apellidos comienzan con "C"
+
+
+select v.ape_vendedor +space(2)+ v.nom_vendedor 'Vendedores', f.fecha, c.ape_cliente +space(2)+ c.nom_cliente 'Cliente'
+from facturas f, clientes c, vendedores v
+where f.cod_cliente = c.cod_cliente and f.cod_vendedor = v.cod_vendedor
+and year(f.fecha) = year(getdate()) -10
+and ( c.nom_cliente like 'c%' or c.ape_cliente like 'c%' )
+
+
+--15) El encargado de la librería necesita tener información sobre los artículos que se vendían a menos de $ 10 antes del 2005.
+--Mostrar los datos que se consideren relevantes para el encargado, rotular y ordenar
+
+select a.descripcion 'Articulos', a.pre_unitario 'Precio', f.fecha 'Fecha'
+from detalle_facturas df, facturas f, articulos a
+where df.cod_articulo = a.cod_articulo and df.nro_factura = f.nro_factura
+and df.pre_unitario < 10
+and year(f.fecha) < 2005
+
 
 
 
