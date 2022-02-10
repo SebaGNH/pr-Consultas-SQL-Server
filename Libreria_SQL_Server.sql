@@ -290,6 +290,26 @@ and year(f.fecha) < 2005
 
 
 
+--Guía de Ejercicios Nº 4: UNION --------------------------------------------------------------
+
+--1.Se quiere saber qué vendedores y clientes hay en la empresa; para los casos en que su teléfono y dirección de e-mail sean conocidos.
+--Se deberá visualizar el código, nombre y si se trata de un cliente o de un vendedor.
+--Ordene por la columna tercera y segunda.
+
+select c.cod_cliente 'Codigo', c.nom_cliente 'Nombre', 'Cliente'
+from clientes c
+where c.nro_tel is not null and c.[e-mail] is not null
+union
+select v.cod_vendedor"Codigo", v.nom_vendedor "Nombre", 'Vendedor'
+from vendedores v
+where v.nro_tel is not null and v.[e-mail] is not null
+order by 3, 2 asc
+
+
+
+
+
+
 
 
 
