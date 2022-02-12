@@ -222,7 +222,7 @@ order by c.cod_cliente, f.fecha, a.descripcion asc
 select distinct a.cod_articulo, a.descripcion, a.stock_minimo, a.pre_unitario
 from articulos a, detalle_facturas df, facturas f
 where a.cod_articulo = df.cod_articulo and f.nro_factura = df.nro_factura
-and year(f.fecha) = year(getdate()) - 4
+and year(f.fecha) = year(getdate()) 
 
 
 --10)Se quiere saber a que clientes se les vendió el año pasado, que vendedor que realizó la vta., 
@@ -296,28 +296,71 @@ and year(f.fecha) < 2005
 --Se deberá visualizar el código, nombre y si se trata de un cliente o de un vendedor.
 --Ordene por la columna tercera y segunda.
 
-select c.cod_cliente 'Codigo', c.nom_cliente 'Nombre', 'Cliente'
+select c.cod_cliente 'Codigo', c.nom_cliente 'Nombre', 'Cliente' Tipo
 from clientes c
 where c.nro_tel is not null and c.[e-mail] is not null
 union
-select v.cod_vendedor"Codigo", v.nom_vendedor "Nombre", 'Vendedor'
+select v.cod_vendedor"Codigo", v.nom_vendedor "Nombre", 'Vendedor' Tipo
 from vendedores v
 where v.nro_tel is not null and v.[e-mail] is not null
 order by 3, 2 asc
 
 
+--2) Emitir un listado donde se muestren qué artículos, clientes y vendedores hay en la empresa.
+--Determine los campos a mostrar y su ordenamiento.
+
+select a.descripcion, 'Artículos' Tipo
+from articulos a
+union
+select c.ape_cliente +space(2)+ c.nom_cliente, 'Cliente' Tipo
+from clientes c
+union
+select v.ape_vendedor + space(2)+v.nom_vendedor, 'Vendedor' Tipo
+from vendedores v
+order by 2 asc
 
 
+--3) En un mismo listado mostrar todos los artículos que hay en la empresa y los artículos que han sido vendidos. 
+--Determine Ud. las columnas a mostrar.
 
 
+select a.descripcion, 'en Stock' Tipo
+from articulos a
+UNION
+select a.descripcion, 'Vendidos' Tipo
+from detalle_facturas df, articulos a
+where df.cod_articulo = a.cod_articulo
+
+--4.Se quiere saber las direcciones (incluido el barrio) tanto de clientes como de vendedores.
+--Para el caso de los vendedores, códigos entre 3 y 12. 
+--En ambos casos las direcciones deberán ser conocidas. 
+--Rotule como NOMBRE, DIRECCION, BARRIO, INTEGRANTE (en donde indicará si es cliente o vendedor).
+--Ordenado por la primera y la última columna. "str(altura) o CONVERT(varchar(10), field_name)"
+
+select c.ape_cliente+space(2)+c.nom_cliente'NOMBRE', c.calle +space(2)+str(c.altura) 'DIRECCION', b.barrio 'BARRIO', 'Cliente' INTEGRANTE
+from clientes c, barrios b
+where c.cod_barrio = b.cod_barrio
+and c.calle is not null and c.altura is not null
+union
+select v.ape_vendedor+space(2)+ v.nom_vendedor 'NOMBRE', v.calle +space(2)+convert(varchar(4),v.altura)'DIRECCION', b.barrio 'BARRIO', 'Vendedor' INTEGRANTE
+from vendedores v, barrios b
+where v.cod_barrio = b.cod_barrio
+and v.cod_vendedor between 3 and 12
+and v.calle is not null and v.altura is not null
+order by 1, 4 asc
 
 
+--5.Se quiere saber que clientes hay en la empresa y listar además los clientes que han comparado entre el 1/12/2010 y el 1/03/2012.
+--Muestre el código, sin duplicarlos. "Si le agretó el campo tipo con su rotulo agrega duplicados"
 
+select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente'
+from clientes c
+union
+select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente'
+from clientes c, facturas f
+where f.cod_cliente = c.cod_cliente
+and f.fecha between '2010-12-01' and '2012-03-01'
 
-
-
-
-
-
-
+--6) Ídem al ejercicio anterior, sólo que además del código, identifique de donde obtiene la información
+--(de qué tabla se obtienen los datos).
 
