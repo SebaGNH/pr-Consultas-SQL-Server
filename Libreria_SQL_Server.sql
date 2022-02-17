@@ -364,3 +364,89 @@ and f.fecha between '2010-12-01' and '2012-03-01'
 --6) Ídem al ejercicio anterior, sólo que además del código, identifique de donde obtiene la información
 --(de qué tabla se obtienen los datos).
 
+select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente', 'Cliente' Tipo
+from clientes c
+union
+select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente',  'Facturas'
+from clientes c, facturas f
+where f.cod_cliente = c.cod_cliente
+and f.fecha between '2010-12-01' and '2012-03-01'
+
+--7.Se quiere saber qué clientes hay en la empresa y quienes han comprado; 
+--para el primer caso para nombres que empiecen con letras que van de la C a la L y
+-- para el segundo para facturas que oscilen entre 10 y 23. Muestre el código (no elimine los que se repiten).
+
+
+select  c.cod_cliente, c.nom_cliente, 'Cliente' Tabla
+from clientes c
+where c.nom_cliente like '[C-L]%'
+union all
+select  c.cod_cliente, c.nom_cliente, 'Compro'
+from clientes c, facturas f
+where f.cod_cliente = c.cod_cliente
+and f.nro_factura between 10 and 23
+order by 1
+
+--8.Listar todos los artículos que están a la venta cuyo precio unitario oscile entre 10 y 50; 
+--también se quieren listar los artículos que fueron comprados por los clientes cuyos apellidos comiencen con M o con P.
+
+
+select a.cod_articulo, a.descripcion,'En Venta' Tipo
+from articulos a
+where a.pre_unitario between 10 and 50
+union
+select a.cod_articulo, a.descripcion, 'Facturados'
+from articulos a, detalle_facturas df, facturas f, clientes c
+where a.cod_articulo = df.cod_articulo and df.nro_factura = f.nro_factura and f.cod_cliente = c.cod_cliente
+and c.ape_cliente like '[M~P]%'
+order by 1
+
+
+--Guía de Ejercicios Nº 5: Consultas Sumarias --------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
