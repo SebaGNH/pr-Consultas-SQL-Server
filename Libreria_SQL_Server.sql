@@ -1,5 +1,5 @@
 --Está verificado con los PDF de la UTN
---se usa ~ para uno u otro, - es para rangos, verificado por mi
+--se usa ~ para uno u otro, - es para rangos
 --GUIA DE EJERCICIOS 02 --------------------------------------------------------------
 
 --1) Liste Código, descripción, stock mínimo y precio de todos los artículos, ordenados por precio y descripción.
@@ -460,28 +460,76 @@ where df.nro_factura = f.nro_factura and f.cod_vendedor = v.cod_vendedor
 and v.nom_vendedor like '[D-L]%'
 
 
+--9.Se quiere saber el promedio del importe, el total del importe vendido, el promedio de la cant.vendida y la cant.total vendida.
+
+select avg(df.pre_unitario* df.cantidad)'importe Promedio', sum(df.pre_unitario*df.cantidad)'importe Total', avg(df.cantidad)'Promedio Cantidad',sum(df.cantidad)'cant Total'
+from detalle_facturas df
+
+
+--10.Se quiere saber el importe total vendido, el promedio del importe vendido y la cant.total vendida para el cliente de código 3.
+
+select sum(df.pre_unitario*df.cantidad)'Importe Total', avg(df.pre_unitario*df.cantidad)'Promedio Importe',sum(df.cantidad)'Cant Total'
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+and f.cod_cliente = 3
+
+
+--11.Se quiere saber la fecha de la 1er vta, la cant total vendida y el importe total vendido para los artículos que empiecen con C.
+
+select min(f.fecha)'1ra Vta', sum(df.cantidad)'cant Tot vendida',sum(df.pre_unitario*df.cantidad)'importe Total vendido'
+from detalle_facturas df, facturas f, articulos a
+where df.nro_factura = f.nro_factura and df.cod_articulo = a.cod_articulo
+and a.descripcion like 'c%'
+
+
+--12.Se quiere saber la cant total vendida y el importe total vendido para el periodo del 15/06/2008 al 15/06/2011.
+
+select sum(df.cantidad)'cant Total Vendida', sum(df.pre_unitario * df.cantidad)'Importe Total Vendido'
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura 
+and f.fecha between '2008-06-15' and '2011-06-15'
+
+
+--13.Se quiere saber la cant. de veces y la última vez que vino el cliente de apellido Abarca.
+
+select count(f.nro_factura) 'Cantidad de veces que vino el cliente', max(f.fecha)'ultima visita'
+from facturas f, clientes c
+where f.cod_cliente = c.cod_cliente
+and c.ape_cliente like 'Abarca'
+
+
+--14.Se quiere saber el importe total y el promedio del importe para los clientes cuya dirección de mail es conocida.
+--Rotule como IMPORTE TOTAL, PROMEDIO.
+
+select  sum(df.pre_unitario * df.cantidad)'IMPORTE TOTAL', avg(df.pre_unitario*df.cantidad)'PROMEDIO'
+from detalle_facturas df, facturas f, clientes c
+where df.nro_factura = f.nro_factura and f.cod_cliente = c.cod_cliente
+and c.[e-mail] is not null
+
+
+--15.Se quiere saber el importe total vendido y el importe promedio vendido para nros.de factura que
+--no sean los siguientes: 13, 5, 17, 33, 24.
+
+select sum(df.pre_unitario*df.cantidad)'Importe Total', avg(df.pre_unitario*df.cantidad)'Importe Promedio'
+from detalle_facturas df
+where df.nro_factura not in (13,5,17,33,24)
+
+
+--16.Se quiere saber la fecha de la primera venta, el importe total vendido y la cantidad total vendida para el año 2014.
+
+select min(f.fecha)'1ra Venta', sum(df.pre_unitario*df.cantidad)'Importe Total Vendido', sum(df.cantidad)'Cant Total Vendida'
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+and year(f.fecha) = 2014
+
+--17.Se quiere saber la cant. de vtas, la cant. total vendida y el importe promedio vendido para la factura 33.
+--Rotule como CANTIDAD DE VENTAS, CANTIDAD VENDIDA, PROMEDIO VENDIDO.
+
+select count(df.nro_factura)'CANTIDAD DE VENTAS', sum(df.cantidad)'CANTIDAD VENDIDA', avg(df.pre_unitario*df.cantidad)'PROMEDIO VENDIDO'
+from detalle_facturas df
+where df.nro_factura = 33
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+--Guía de Ejercicios Nº 6:  --------------------------------------------------------------
