@@ -405,24 +405,59 @@ order by 1
 --Guía de Ejercicios Nº 5: Consultas Sumarias --------------------------------------------------------------
 
 
+--1.Se quiere saber la cant.de clientes que hay en la empresa.
+
+select count(c.cod_cliente)'Cantidad de clientes'
+from clientes c
 
 
+--2.Se quiere saber que cant. vendedores hay en la empresa.
+
+select count(v.cod_vendedor) 'Cantidad de vendedores'
+from vendedores v
 
 
+--3.Se quiere saber el promedio de la cant.total de artículos vendidos.
+
+select avg(df.cantidad) 'Promedio'
+from detalle_facturas df
 
 
+--4.Se quiere saber la cantidad de vtas que hizo el vendedor de código 3.
+
+select count(f.nro_factura)'Cant. Ventas'
+from facturas f
+where f.cod_vendedor = 3
 
 
+--5.Se quiere saber cual fue la fecha de la 1ra. y última vta.
+--Rotule como PRIMER VENTA, última VENTA.
+
+select min(f.fecha)'PRIMER VENTA', max(f.fecha)'última VENTA'
+from facturas f
 
 
+--6.Se quiere saber cual fue la máxima y la mínima cant.que se vendió para el artículo 8.
+
+select max(df.cantidad)'cant Maxima', min(df.cantidad)'Minima Cantidad'
+from detalle_facturas df
+where df.cod_articulo = 8
 
 
+--7.Se quiere saber la cant.vendida, la cant.de vtas. el importe total para la factura 15.
+
+select sum(df.cantidad)'cant Vendida', count(df.nro_factura)'cant Ventas', sum(df.pre_unitario * df.cantidad)'importe Total'
+from detalle_facturas df
+where df.nro_factura = 15
 
 
+--8.Se quiere saber la cant.total vendida, el importe total  el importe promedio;
+-- para vendedores cuyo nombres comienzan con letras que van de la D a la L.
 
-
-
-
+select sum(df.cantidad)'cant Total', sum(df.pre_unitario * df.cantidad)'Importe Total', avg(df.pre_unitario*df.cantidad)'importe Promedio'
+from detalle_facturas df, facturas f, vendedores v
+where df.nro_factura = f.nro_factura and f.cod_vendedor = v.cod_vendedor
+and v.nom_vendedor like '[D-L]%'
 
 
 
