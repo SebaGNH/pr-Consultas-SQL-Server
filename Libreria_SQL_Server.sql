@@ -532,4 +532,74 @@ where df.nro_factura = 33
 
 
 
---Guía de Ejercicios Nº 6:  --------------------------------------------------------------
+--Guía de Ejercicios Nº 6: Consultas Agrupadas  --------------------------------------------------------------
+
+--Cantidad de facturas diarias
+select count(f.nro_factura),f.fecha
+from facturas f
+group by f.fecha
+
+
+--Cantidad de facturas por año
+select count(f.nro_factura),year(f.fecha)
+from facturas f
+group by year(f.fecha)
+
+
+--Cantidad de facturas emitidas por cada vendedor, ademas de la primer venta que hizo c/u
+
+select count(f.nro_factura), min(f.nro_factura)
+from facturas f, vendedores v
+where v.cod_vendedor = f.cod_vendedor
+group by v.cod_vendedor
+
+
+--Ingresos mensuales este año
+
+select sum(df.pre_unitario*df.cantidad),month(f.fecha)
+from facturas f, detalle_facturas df
+where df.nro_factura = f.nro_factura
+and year(f.fecha) = year(getdate())
+group by month(f.fecha)
+
+
+--Cantidad de clientes
+
+select count(c.cod_cliente)
+from clientes c
+
+
+--cantidad de clientes con tel conocido
+
+select count(c.cod_cliente)
+from clientes c
+where c.nro_tel is not null
+
+
+
+--1). Mostrar la cantidad de artículos vendidos (suma de las cantidades vendidas), cantidad de ventas
+--(cantidad de registros de detalles) y el Importe total por factura.
+
+select sum(df.cantidad), count(df.cod_articulo), sum(df.pre_unitario*df.cantidad)
+from detalle_facturas df
+
+--2. Se quiere saber en este negocio, cuanto se factura:
+--a. Diariamente (importe total de facturacion por fecha)
+--b. Mensualmente (importe total de facturacion por mes, por año)
+--c. Anualmente (importe total de facturacion por año)
+
+--a
+select sum(df.pre_unitario*df.cantidad), f.fecha
+from facturas f,detalle_facturas df
+where df.nro_factura = f.nro_factura
+group by f.fecha
+--b
+select sum(df.pre_unitario*df.cantidad),month(f.fecha),year(f.fecha)
+from facturas f,detalle_facturas df
+where df.nro_factura = f.nro_factura
+group by month(f.fecha),year(f.fecha)
+--c
+select sum(df.pre_unitario*df.cantidad),year(f.fecha)
+from facturas f,detalle_facturas df
+where df.nro_factura = f.nro_factura
+group by year(f.fecha)
