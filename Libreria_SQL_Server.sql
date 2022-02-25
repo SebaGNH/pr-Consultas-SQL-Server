@@ -603,3 +603,25 @@ select sum(df.pre_unitario*df.cantidad),year(f.fecha)
 from facturas f,detalle_facturas df
 where df.nro_factura = f.nro_factura
 group by year(f.fecha)
+
+
+--3. Se quiere saber la cantidad de facturas por fecha, 
+--siempre que los meses de venta no sean uno de los siguientes: 7, 1, 12. 
+--Rotule como FECHA, CANTIDAD VENTAS. Ordene por la cantidad de facturas en forma descendente y fecha.
+
+select count(f.nro_factura) 'Cantidad Ventas', f.fecha 'FECHA'
+from facturas f
+where month(f.fecha) not in (7,1,12)
+group by f.fecha
+order by 1 desc, 2 desc
+
+
+--4. Mostrar la cantidad total vendida, el importe total vendido y la fecha de la primer venta por cliente, para nombres de cliente que no empiecen con P.
+
+select count(df.cantidad), sum(df.pre_unitario*df.cantidad),min(f.fecha),f.cod_cliente
+from detalle_facturas df, facturas f, clientes c
+where df.nro_factura = f.nro_factura and c.cod_cliente = f.cod_cliente
+and c.nom_cliente not like 'P%'
+group by f.cod_cliente
+
+
