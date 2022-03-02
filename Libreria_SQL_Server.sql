@@ -63,7 +63,7 @@ order by a.descripcion desc, a.pre_unitario desc
 select *
 from vendedores v
 where v.nom_vendedor not like '%z%'
-and v.fec_nac > '1970-01-01'
+and v.fec_nac > '01/01/1970'
 
 
 --8) Mostrar las facturas realizadas entre el 1/1/2007 y el 1/5/2009 y
@@ -72,9 +72,9 @@ and v.fec_nac > '1970-01-01'
 
 select *
 from facturas f
-where (f.fecha between '2007-01-01' and '2009-05-01'
+where (f.fecha between '01/01/2007'and '01/05/2009'
 and f.cod_vendedor in (1,3,4)
-or  f.fecha between '2010-01-01' and '2011-05-01'
+or  f.fecha between '01/01/2010' and '01/05/2011'
 and f.cod_vendedor in (2,4) )
 
 
@@ -112,7 +112,7 @@ from vendedores v
 
 select *
 from facturas f
-where year(f.fecha) = year(getdate()) -4  -- el -4 va afuera del parentesis ya que year es el número, no getdate, este da una fecha completa
+where year(f.fecha) = year(getdate()) -1  -- el -1 va afuera del parentesis ya que year es el número, no getdate, este da una fecha completa
 
 
 --13) Listar los datos de los vendedores nacidos en febrero, abril, mayo o septiembre.
@@ -152,7 +152,7 @@ select f.nro_factura, c.nom_cliente + space (3) + c.ape_cliente 'Cliente', v.nom
 from facturas f, clientes c, vendedores v
 where f.cod_cliente = c.cod_cliente 
 and f.cod_vendedor = v.cod_vendedor
-and f.fecha between '2008-02-01' and '2010-03-01'
+and f.fecha between '01/02/2008' and '01/03/2010'
 and c.ape_cliente not like '%c%'
 
 
@@ -233,7 +233,7 @@ and year(f.fecha) = year(getdate())
 select c.ape_cliente +space(2)+ c.nom_cliente 'Cliente', v.ape_vendedor+space(2)+v.nom_vendedor, a.descripcion
 from facturas f, detalle_facturas df, clientes c, vendedores v, articulos a, barrios b
 where f.nro_factura = df.nro_factura and c.cod_cliente = f.cod_cliente and f.cod_vendedor = v.cod_vendedor and a.cod_articulo = df.cod_articulo and c.cod_barrio = b.cod_barrio
-and year(f.fecha) = year(getdate()) -5
+and year(f.fecha) = year(getdate())
 and b.barrio like '[a-p]%'
 and (  year(v.fec_nac) - year(getdate())  ) < 35
 
@@ -359,7 +359,7 @@ union
 select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente'
 from clientes c, facturas f
 where f.cod_cliente = c.cod_cliente
-and f.fecha between '2010-12-01' and '2012-03-01'
+and f.fecha between '01/12/2010' and '01/03/2012'
 
 --6) Ídem al ejercicio anterior, sólo que además del código, identifique de donde obtiene la información
 --(de qué tabla se obtienen los datos).
@@ -370,7 +370,7 @@ union
 select  c.cod_cliente , c.ape_cliente+space(2)+c.nom_cliente 'Cliente',  'Facturas'
 from clientes c, facturas f
 where f.cod_cliente = c.cod_cliente
-and f.fecha between '2010-12-01' and '2012-03-01'
+and f.fecha between '01/12/2010' and '01/03/2012'
 
 --7.Se quiere saber qué clientes hay en la empresa y quienes han comprado; 
 --para el primer caso para nombres que empiecen con letras que van de la C a la L y
@@ -487,7 +487,7 @@ and a.descripcion like 'c%'
 select sum(df.cantidad)'cant Total Vendida', sum(df.pre_unitario * df.cantidad)'Importe Total Vendido'
 from detalle_facturas df, facturas f
 where df.nro_factura = f.nro_factura 
-and f.fecha between '2008-06-15' and '2011-06-15'
+and f.fecha between '15/06/2008' and '15/06/2011'
 
 
 --13.Se quiere saber la cant. de veces y la última vez que vino el cliente de apellido Abarca.
@@ -623,5 +623,90 @@ from detalle_facturas df, facturas f, clientes c
 where df.nro_factura = f.nro_factura and c.cod_cliente = f.cod_cliente
 and c.nom_cliente not like 'P%'
 group by f.cod_cliente
+
+
+--5.Se quiere saber la cantidad y el importe promedio vendido por fecha y cliente, para códigos de vendedor superiores a 2. Ordene por fecha y cliente.
+
+select avg(df.cantidad), avg(pre_unitario* df.cantidad), f.fecha, f.cod_cliente
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+and f.cod_vendedor > 2
+group by f.fecha, f.cod_cliente
+order by 2, 3
+
+
+--6.Se quiere saber el importe promedio vendido y la cantidad total vendida por fecha y artículos, para códigos de cliente inferior a 3. Ordene por fecha y artículos.
+
+select avg(df.pre_unitario*df.cantidad), sum(df.cantidad), f.fecha,a.descripcion
+from detalle_facturas df, facturas f, articulos a
+where df.nro_factura = f.nro_factura and a.cod_articulo = df.cod_articulo
+and f.cod_cliente < 3
+group by f.fecha,a.descripcion
+order by f.fecha, a.descripcion
+
+
+--7.Listar la cantidad total vendida, el importe total vendido y el importe promedio total vendido por número de factura, 
+--siempre que la fecha no oscile entre el 13/2/2007 y el 13/7/2010.
+
+select sum(df.cantidad), sum(df.cantidad*df.pre_unitario),avg(df.cantidad*df.pre_unitario),f.nro_factura
+from detalle_facturas df, facturas f
+where f.nro_factura = df.nro_factura
+and f.fecha not between '13/02/2007' and '13/07/2010'
+group by f.nro_factura
+
+
+--8.Mostrar la cantidad de ventas para meses que oscilen entre julio y noviembre ():
+--a. Por fecha y vendedor.
+--b. Por vendedor y fecha.
+--Ordene por los mismos campos por los que agrupa.
+
+--a. Por fecha y vendedor.
+
+select count(f.nro_factura), f.fecha, f.cod_vendedor
+from facturas f, detalle_facturas df
+where df.nro_factura = f.nro_factura
+and month(f.fecha) between 7 and 11
+group by f.fecha, f.cod_vendedor
+order by f.fecha, f.cod_vendedor
+
+--b. Por vendedor y fecha.
+select count(f.nro_factura), f.cod_vendedor, f.fecha
+from facturas f, detalle_facturas df
+where df.nro_factura = f.nro_factura
+and month(f.fecha) between 7 and 11
+group by f.cod_vendedor, f.fecha
+order by f.cod_vendedor, f.fecha
+
+
+--9.Se quiere saber la fecha de la primer y última venta y el importe comprado por cliente. 
+--Rotule como CLIENTE, PRIMER VENTA, ÚLTIMA VENTA, IMPORTE.
+
+select f.cod_cliente 'CLIENTE',min(f.fecha)'PRIMER VENTA', max(f.fecha)'ÚLTIMA VENTA', sum(df.cantidad*df.pre_unitario)'IMPORTE'
+from facturas f, detalle_facturas df
+where f.nro_factura = df.nro_factura
+group by f.cod_cliente
+
+
+--10.Se quiere saber el importe total vendido, la cantidad total vendida y el precio unitario promedio por cliente y artículo,
+--siempre que el nombre del cliente comience con letras que van de la “a” a la “m”.
+--Ordene por cliente, precio unitario promedio en forma descendente y artículo. Rotule como IMPORTE TOTAL, CANTIDAD TOTAL, PRECIO PROMEDIO.
+
+select sum(df.pre_unitario*df.cantidad)'IMPORTE TOTAL', sum(df.cantidad)'CANTIDAD TOTAL', avg(df.pre_unitario)'PRECIO PROMEDIO', f.cod_cliente, df.cod_articulo 
+from detalle_facturas df, facturas f, clientes c
+where f.nro_factura = df.nro_factura and c.cod_cliente = f.cod_cliente
+and c.nom_cliente like '[a-m]%'
+group by f.cod_cliente, df.cod_articulo
+order by 4,3 desc, df.cod_articulo
+
+--11.Mostrar la fecha de la primera venta y la cantidad de ventas (cantidad de registros en el detalle) por vendedor, para el año pasado.
+
+
+
+
+
+
+
+
+
 
 
