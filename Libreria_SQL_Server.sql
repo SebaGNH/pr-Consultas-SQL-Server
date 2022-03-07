@@ -1,5 +1,7 @@
 --Está verificado con los PDF de la UTN
 --se usa ~ para uno u otro, - es para rangos
+
+
 --GUIA DE EJERCICIOS 02 --------------------------------------------------------------
 
 --1) Liste Código, descripción, stock mínimo y precio de todos los artículos, ordenados por precio y descripción.
@@ -290,6 +292,7 @@ and year(f.fecha) < 2005
 
 
 
+
 --Guía de Ejercicios Nº 4: UNION --------------------------------------------------------------
 
 --1.Se quiere saber qué vendedores y clientes hay en la empresa; para los casos en que su teléfono y dirección de e-mail sean conocidos.
@@ -402,8 +405,10 @@ and c.ape_cliente like '[M~P]%'
 order by 1
 
 
---Guía de Ejercicios Nº 5: Consultas Sumarias --------------------------------------------------------------
 
+
+
+--Guía de Ejercicios Nº 5: Consultas Sumarias --------------------------------------------------------------
 
 --1.Se quiere saber la cant.de clientes que hay en la empresa.
 
@@ -700,12 +705,109 @@ order by 4,3 desc, df.cod_articulo
 
 --11.Mostrar la fecha de la primera venta y la cantidad de ventas (cantidad de registros en el detalle) por vendedor, para el año pasado.
 
+select min(f.fecha), count(df.nro_factura), f.cod_vendedor
+from facturas f, detalle_facturas df
+where f.nro_factura = df.nro_factura
+and year(f.fecha) = year(getdate()) -1
+group by f.cod_vendedor
+
+
+--12.Se quiere saber la cantidad de facturas y la fecha la primer y última factura por vendedor y cliente,
+--para números de factura que oscilan entre 5 y 30. Ordene por vendedor, cantidad de ventas en forma descendente y cliente.
+
+select count(f.nro_factura), min(f.fecha),max(f.fecha), f.cod_vendedor, f.cod_cliente
+from facturas f
+where f.nro_factura between 5 and 30
+group by f.cod_vendedor, f.cod_cliente
+order by f.cod_vendedor, 1 desc, 5
 
 
 
 
 
+--Guía de Ejercicios Nº 7:  Consultas Agrupadas con condición --------------------------------------------------------------
 
+--1.Se quiere saber la fecha de la primer venta, la cantidad total vendida y el importe total vendido por vendedor 
+--para los casos en que el promedio de la cantidad vendida sea inferior o igual a 56.
+
+select min(f.fecha), sum(df.cantidad), sum(df.pre_unitario*df.cantidad), f.cod_vendedor
+from facturas f,detalle_facturas df
+where df.nro_factura = f.nro_factura
+group by f.cod_vendedor
+having avg(df.cantidad) <= 56
+
+
+--2.Liste el importe máximo y mínimo e importe total por factura y por cliente donde el importe total sea entre 100 y 500.
+
+select max(df.pre_unitario*df.cantidad)'Maximo', min(df.pre_unitario*df.cantidad)'Minimo', sum(df.pre_unitario*df.cantidad)'Total'
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+group by f.nro_factura,f.cod_cliente
+having sum(df.cantidad*df.pre_unitario) between 100 and 500
+
+
+--3.Muestre la cantidad de ventas por vendedor y fecha;
+--para los casos en esa cantidad de ventas sea superior a 1.
+
+select count(f.nro_factura)'Cant Ventas',f.cod_vendedor,f.fecha
+from facturas f
+group by f.cod_vendedor,f.fecha
+having count(f.nro_factura) > 1
+
+
+--4.Se quiere saber el precio promedio, el importe y el promedio total vendido por artículo;
+--para los casos en que el artículo no comience con “c”,
+--que su cantidad vendida sea igual o superior a 100 o que ese importe total vendido sea superior a 350
+
+select avg(df.pre_unitario), avg(df.pre_unitario* df.cantidad),sum(df.pre_unitario * df.cantidad),a.descripcion
+from detalle_facturas df, articulos a
+where df.cod_articulo = a.cod_articulo
+and a.descripcion not like 'c%'
+group by a.descripcion
+having ( sum(df.cantidad) >= 100 or sum(df.pre_unitario*df.cantidad) > 350)
+
+
+--5.Muestre la cantidad total vendida, el importe total y la fecha de la primer y  última venta por cliente,
+--para lo números de factura que no sean los siguientes: 2, 12, 20, 17, 30 y
+--que el promedio de la cantidad vendida no oscile entre 2 y 6.
+--Rotule como CLIENTE, CANTIDAD TOTAL, IMPORTE TOTAL, PRIMER VENTA, ULTIMA VENTA.
+
+select sum(df.cantidad)'CANTIDAD TOTAL', sum(df.pre_unitario*df.cantidad)'IMPORTE TOTAL',min(f.fecha)'PRIMER VENTA',max(f.fecha)'ULTIMA VENTA',f.cod_cliente 'CLIENTE'
+from detalle_facturas df,facturas f
+where df.nro_factura = f.nro_factura
+and f.nro_factura not in (2,12,20,17,30) 
+group by f.cod_cliente
+having avg(df.cantidad) not between 2 and 6
+
+--6.Muestre la cantidad total vendida, el importe total vendido y el promedio total vendido por vendedor y cliente;
+--para los casos en que el importe total vendido oscile entre 2000 y 6000 
+--y para códigos de cliente que oscilen entre 1 y 5.
+
+
+select sum(df.cantidad), sum(df.cantidad*df.pre_unitario),avg(df.pre_unitario*df.cantidad), f.cod_vendedor,f.cod_cliente
+from detalle_facturas df, facturas f
+where f.nro_factura = df.nro_factura
+and f.cod_cliente between 1 and 5
+group by f.cod_vendedor, f.cod_cliente
+having sum(df.pre_unitario*df.cantidad) between 2000 and 6000
+
+
+--7.Se quiere saber el importe promedio y el total vendido por factura,
+--para los casos en que la cantidad total vendida sea superior a 50 y
+--que el importe total sea superior a 100.
+--Ordene por importe en forma descendente.
+--Rotule como FACTURA, IMPORTE TOTAL,PROMEDIO.
+
+select avg(df.pre_unitario*df.cantidad)'PROMEDIO', sum(df.pre_unitario*df.cantidad)'IMPORTE TOTA',df.nro_factura 'FACTURA'
+from detalle_facturas df
+group by df.nro_factura
+having sum(df.cantidad) > 50 and sum(df.pre_unitario*df.cantidad) > 100
+order by 2 desc
+
+
+--8.Se quiere saber la cantidad total vendida, el precio promedio y el importe total vendido por fecha;
+--para los casos en que el año de la venta sea uno de los siguientes 2008, 2010 o 2011 y
+--que ese importe total sea inferior a 200. Ordene por importe en forma descendente.
 
 
 
