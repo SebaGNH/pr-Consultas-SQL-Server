@@ -809,6 +809,34 @@ order by 2 desc
 --para los casos en que el año de la venta sea uno de los siguientes 2008, 2010 o 2011 y
 --que ese importe total sea inferior a 200. Ordene por importe en forma descendente.
 
+select sum(df.cantidad), avg(df.pre_unitario), sum(df.pre_unitario*df.cantidad), f.fecha
+from detalle_facturas df,facturas f
+where f.nro_factura = df.pre_unitario
+and year(f.fecha) in (2008,2010,2011)
+group by f.fecha
+having sum(df.pre_unitario*df.cantidad) < 200
+order by 3 desc
 
 
+--9.Muestre la cantidad total vendida y el promedio total vendido por cliente y fecha;
+--para los casos en que el importe total vendido sea inferior a 150 y
+--que el promedio de la cantidad vendida sea inferior a 20.
+--Rotule como CLIENTE, FECHA, CANTIDAD, IMPORTE PROMEDIO.
+
+select sum(df.cantidad)'CANTIDAD', avg(df.pre_unitario*df.cantidad)'IMPORTE PROMEDIO', f.cod_cliente 'CLIENTE',f.fecha 'FECHA'
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+group by f.cod_cliente, f.fecha
+having sum(df.pre_unitario*df.cantidad) < 150 and avg(df.cantidad) < 20
+
+
+--10.Liste la cantidad total y el promedio de ventas, el importe total y el promedio del importe por vendedor por año,
+--para las ventas realizadasanteriores 1/1/2008 y que el importe total no supere los $ 850.
+
+select  count(df.nro_factura),avg(df.nro_factura), sum(df.pre_unitario*df.cantidad), avg(df.pre_unitario*df.cantidad),f.cod_cliente,year(f.fecha)
+from detalle_facturas df, facturas f
+where df.nro_factura = f.nro_factura
+and f.fecha < '01/01/2008'
+group by f.cod_cliente, year(f.fecha)
+having sum(df.pre_unitario*df.cantidad) <= 850
 
