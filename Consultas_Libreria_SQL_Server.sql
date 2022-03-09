@@ -840,3 +840,50 @@ and f.fecha < '01/01/2008'
 group by f.cod_cliente, year(f.fecha)
 having sum(df.pre_unitario*df.cantidad) <= 850
 
+
+--Guía de Ejercicios Nº 8:  Join --------------------------------------------------------------
+
+
+--1)Liste factura, fecha, nombre de vendedor y nombre de cliente 
+--para las ventas del año 2006, 2007, 2009 y 2012.
+
+select  f.nro_factura'Nro. Factura',f.fecha'Fecha',v.nom_vendedor'Vendedor',c.nom_cliente'Cliente'
+from facturas f join clientes c on f.cod_cliente = c.cod_cliente join vendedores v on f.cod_vendedor = v.cod_vendedor
+where year(f.fecha) in (2006,2007,2009,2012)
+
+
+--2)Liste nro. de factura, fecha, descripción del artículo, cantidad vendida, precio unitario e importe,
+-- de las facturas correspondientes al mes pasado.
+
+select f.nro_factura, f.fecha, a.descripcion'Articulo', df.cantidad'Cantidad Vendida', df.pre_unitario'Precio Unitario', df.pre_unitario * df.cantidad 'Importe'
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where month(f.fecha) = month(getdate()) -1 and year(f.fecha) = year(getdate())
+
+
+--3)Liste código de vendedor, nombre, fecha y factura;
+-- para las ventas en lo que va del año.
+-- Muestre los vendedores aun así no tengan ventas registradas en el año solicitado.
+
+select v.cod_vendedor, v.nom_vendedor, f.fecha,f.nro_factura
+from facturas f left join vendedores v on f.cod_vendedor = v.cod_vendedor
+where year(f.fecha) = year(getdate())
+
+
+--4)Liste descripción, cantidad e importe;
+-- aun para aquellos artículos que no registran ventas.
+
+select a.descripcion'Articulo', df.cantidad, df.pre_unitario*df.cantidad'Importe'
+from articulos a left join detalle_facturas df on df.cod_articulo = a.cod_articulo
+
+
+--5)Liste factura, fecha, vendedor, cliente, articulo, cantidad e importe;
+-- para las ventas de febrero y marzo de los años 2006 y 2007
+-- y siempre que el artículo empiece con letras que van de la “a” a la “m”.
+-- Ordene por fecha, cliente y artículo.
+
+select f.nro_factura, f.fecha, v.ape_vendedor +space(2)+v.nom_vendedor'Vendedor', c.ape_cliente+space(2)+c.nom_cliente'Cliente',a.descripcion'Articulo', 
+df.cantidad'Cantidad',df.pre_unitario*df.cantidad'Importe'
+from facturas f join vendedores v on v.cod_vendedor = f.cod_vendedor join clientes c on c.cod_cliente = f.cod_cliente join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where month(f.fecha) in (02,03) and year(f.fecha) in (2006,2007)
+and a.descripcion like '[a-m]%'
+order by f.fecha,'Cliente','Articulo'
