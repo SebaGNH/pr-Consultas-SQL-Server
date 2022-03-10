@@ -887,3 +887,57 @@ from facturas f join vendedores v on v.cod_vendedor = f.cod_vendedor join client
 where month(f.fecha) in (02,03) and year(f.fecha) in (2006,2007)
 and a.descripcion like '[a-m]%'
 order by f.fecha,'Cliente','Articulo'
+
+
+--6)Liste código de cliente, nombre, fecha y factura 
+--para las ventas del año 2007.
+-- Muestre los clientes hayan comprado o no en ese año.
+
+select c.cod_cliente, c.nom_cliente, f.fecha, f.nro_factura
+from facturas f right join clientes c on f.cod_cliente = c.cod_cliente
+where year(f.fecha) = 2007
+
+
+--7)Se quiere saber los artículos 
+--que compro el cliente 7 en lo que va del año.
+-- Liste artículo, observaciones e importe.
+
+
+select a.descripcion'Articulo',a.observaciones'Observaciones', df.pre_unitario * df.cantidad 'Importe'
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo join facturas f on df.nro_factura = f.nro_factura
+where f.cod_cliente = 7
+and year(f.fecha) = year(getdate())
+
+--8)Se quiere saber los artículos que compraron los clientes que empiezan con “p”.
+-- Liste cliente, articulo, cantidad e importe. 
+--Ordene por cliente y artículo, este en forma descendente.
+-- Rotule como CLIENTE, ARTICULO, CANTIDAD, IMPORTE.
+
+select c.cod_cliente'Cliente', a.descripcion'Articulo', df.cantidad'Cantidad', df.pre_unitario*df.cantidad'Importe'
+from articulos a join detalle_facturas df on a.cod_articulo = df.cod_articulo join facturas f on f.nro_factura = df.nro_factura join clientes c on c.cod_cliente = f.cod_cliente
+where c.nom_cliente like 'p%'
+order by c.cod_cliente, a.descripcion desc
+
+
+--9)Listar los artículos (código y descripción) que vendieron los vendedores 2 y 5.
+-- Muestre también el nombre de los vendedores.
+
+select convert(varchar(10), a.cod_articulo) +space(2)+a.descripcion, v.nom_vendedor'Vendedor'
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo join facturas f on f.nro_factura = df.nro_factura join vendedores v on v.cod_vendedor = f.cod_vendedor
+where f.cod_vendedor in (2,5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--10)Listar todos los clientes (incluidos los que nunca compraron) y los años de compra.
+-- No muestre registros repetidos.
