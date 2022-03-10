@@ -927,17 +927,9 @@ from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo jo
 where f.cod_vendedor in (2,5)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 --10)Listar todos los clientes (incluidos los que nunca compraron) y los años de compra.
 -- No muestre registros repetidos.
+
+select distinct c.nom_cliente +space(2)+ c.ape_cliente'Cliente', year(f.fecha)'Fecha'
+from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
+
