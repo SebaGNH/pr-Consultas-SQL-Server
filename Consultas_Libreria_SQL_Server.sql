@@ -933,3 +933,43 @@ where f.cod_vendedor in (2,5)
 select distinct c.nom_cliente +space(2)+ c.ape_cliente'Cliente', year(f.fecha)'Fecha'
 from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
 
+
+
+--Guía de Ejercicios Nº 8:  Joins --------------------------------------------------------------
+/*
+in: =any
+not int: <> all
+exists: true  <-- si la subconsuta devuelve datos
+not exist: false  <--Si no recibimos resultados trabaja con los datos de la consulta principal
+si negamos un dato negativo no da un positivo
+*/
+
+
+--1)Liste factura, fecha, nombre de vendedor y nombre de cliente para las ventas del año 2006, 2007, 2009 y 2012.
+
+select f.nro_factura, f.fecha, v.nom_vendedor 'Vendedor',c.nom_cliente'Cliente'
+from facturas f join vendedores v on v.cod_vendedor = f.cod_vendedor join clientes c on c.cod_cliente = f.cod_cliente
+where year(f.fecha) in (2006,2007,2009,2012)
+
+
+
+--2)Liste nro. de factura, fecha, descripción del artículo, cantidad vendida, precio unitario e importe,
+-- de las facturas correspondientes al mes pasado.
+
+select f.nro_factura, f.fecha, a.descripcion'Articulo', df.cantidad'Cantidad Vendida', df.pre_unitario, df.pre_unitario* df.cantidad 'Importe'
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where year(f.fecha) = year(getdate())  and month(f.fecha) = month(getdate()) -1
+
+
+--3)Liste código de vendedor, nombre, fecha y factura;
+-- para las ventas en lo que va del año.
+-- Muestre los vendedores aun así no tengan ventas registradas en el año solicitado.
+
+select v.cod_vendedor, v.nom_vendedor, f.fecha,f.nro_factura
+from vendedores v left join facturas f on f.cod_vendedor = v.cod_vendedor
+and year(f.fecha) = year(getdate())  --- con and arroja todos los resultados, con where no muestra los null
+
+
+
+
+
