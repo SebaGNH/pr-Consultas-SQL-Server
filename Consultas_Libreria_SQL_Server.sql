@@ -970,6 +970,24 @@ from vendedores v left join facturas f on f.cod_vendedor = v.cod_vendedor
 and year(f.fecha) = year(getdate())  --- con and arroja todos los resultados, con where no muestra los null
 
 
+--4)Liste descripción, cantidad e importe;
+-- aun para aquellos artículos que no registran ventas.
 
+select a.descripcion 'Articulo', df.cantidad, df.pre_unitario * df.cantidad 'Importe'
+from detalle_facturas df right join articulos a on a.cod_articulo = df.cod_articulo
+
+
+--5)Liste factura, fecha, vendedor, cliente, articulo, cantidad e importe;
+-- para las ventas de febrero y marzo de los años 2006 y 2007
+-- y siempre que el artículo empiece con letras que van de la “a” a la “m”.
+-- Ordene por fecha, cliente y artículo.
+
+select f.nro_factura, f.fecha, v.ape_vendedor +space(2)+ v.nom_vendedor 'Vendedor', c.ape_cliente +space(2)+c.nom_cliente 'Cliente',a.descripcion, df.cantidad,
+df.pre_unitario * df.cantidad 'Importe'
+from facturas f join vendedores v on v.cod_vendedor = f.cod_vendedor join clientes c on c.cod_cliente = f.cod_cliente join detalle_facturas df on df.nro_factura = f.nro_factura
+join articulos a on a.cod_articulo = df.cod_articulo
+where month(f.fecha) in (02,03) and year(f.fecha) in (2006,2007)
+and a.descripcion like '[a-m]%'
+order by f.fecha, 'Cliente', a.descripcion
 
 
