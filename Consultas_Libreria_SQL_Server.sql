@@ -952,7 +952,6 @@ from facturas f join vendedores v on v.cod_vendedor = f.cod_vendedor join client
 where year(f.fecha) in (2006,2007,2009,2012)
 
 
-
 --2)Liste nro. de factura, fecha, descripción del artículo, cantidad vendida, precio unitario e importe,
 -- de las facturas correspondientes al mes pasado.
 
@@ -989,5 +988,54 @@ join articulos a on a.cod_articulo = df.cod_articulo
 where month(f.fecha) in (02,03) and year(f.fecha) in (2006,2007)
 and a.descripcion like '[a-m]%'
 order by f.fecha, 'Cliente', a.descripcion
+
+
+--6)Liste código de cliente, nombre, fecha y factura para las ventas del año 2007.
+-- Muestre los clientes hayan comprado o no en ese año.
+
+select c.cod_cliente, c.nom_cliente, f.fecha,f.nro_factura
+from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
+where year(f.fecha) = 2007
+
+
+--7)Se quiere saber los artículos que compro el cliente 7 en lo que va del año.
+-- Liste artículo, observaciones e importe.
+
+select a.descripcion 'Articulo', a.observaciones, df.pre_unitario * df.cantidad 'Importe'
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo join facturas f on f.nro_factura = df.nro_factura
+where f.cod_cliente = 7
+and year(f.fecha) = year(getdate())
+
+
+--8)Se quiere saber los artículos que compraron los clientes que empiezan con “p”.
+-- Liste cliente, articulo, cantidad e importe. Ordene por cliente y artículo, este en forma descendente.
+-- Rotule como CLIENTE, ARTICULO, CANTIDAD, IMPORTE.
+
+select c.ape_cliente+space(2)+c.nom_cliente as'CLIENTE', a.descripcion'ARTICULO', df.cantidad'CANTIDAD', df.pre_unitario* df.cantidad'IMPORTE'
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo join facturas f on f.nro_factura = df.nro_factura join clientes c on c.cod_cliente = f.cod_cliente
+where c.ape_cliente+space(2)+c.nom_cliente  like 'p%'
+order by 'CLIENTE'asc,'ARTICULO' desc
+
+
+--9)Listar los artículos (código y descripción) que vendieron los vendedores 2 y 5.
+-- Muestre también el nombre de los vendedores.
+
+select a.cod_articulo, a.descripcion, v.nom_vendedor
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo join facturas f on f.nro_factura = df.nro_factura join vendedores v on v.cod_vendedor = f.cod_vendedor
+where f.cod_vendedor in (2,5)
+
+--10)Listar todos los clientes (incluidos los que nunca compraron) y los años de compra.
+-- No muestre registros repetidos.
+
+select distinct c.ape_cliente+space(2)+c.nom_cliente, year(f.fecha) 'Año'
+from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
+
+
+
+
+
+
+
+
 
 
