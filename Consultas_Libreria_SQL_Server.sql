@@ -841,7 +841,7 @@ group by f.cod_cliente, year(f.fecha)
 having sum(df.pre_unitario*df.cantidad) <= 850
 
 
---Guía de Ejercicios Nº 8:  Join --------------------------------------------------------------
+--Guía de Ejercicios Nº 8:  left / right Join --------------------------------------------------------------
 
 
 --1)Liste factura, fecha, nombre de vendedor y nombre de cliente 
@@ -936,14 +936,6 @@ from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
 
 
 --Guía de Ejercicios Nº 8:  Joins --------------------------------------------------------------
-/*
-in: =any
-not int: <> all
-exists: true  <-- si la subconsuta devuelve datos
-not exist: false  <--Si no recibimos resultados trabaja con los datos de la consulta principal
-si negamos un dato negativo no da un positivo
-*/
-
 
 --1)Liste factura, fecha, nombre de vendedor y nombre de cliente para las ventas del año 2006, 2007, 2009 y 2012.
 
@@ -1029,6 +1021,87 @@ where f.cod_vendedor in (2,5)
 
 select distinct c.ape_cliente+space(2)+c.nom_cliente, year(f.fecha) 'Año'
 from clientes c left join facturas f on f.cod_cliente = c.cod_cliente
+
+
+
+
+--Guía de Ejercicios Nº 9:       Subconsultas --------------------------------------------------------------
+/*
+in: =any
+not int: <> all
+exists: true  <-- si la subconsuta devuelve datos
+not exist: false  <--Si no recibimos resultados trabaja con los datos de la consulta principal
+si negamos un dato negativo no da un positivo
+*/
+
+
+--1)Emitir un listado de los artículos que no fueron vendidos este año.
+--En ese listado solo incluir aquellos cuyo precio unitario del artículo oscile entre 20 y 50.
+
+--con not exists
+select *
+from articulos a
+where not exists (
+    select df.cod_articulo
+    from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura
+    where year(f.fecha) = year(getdate())
+    and a.cod_articulo = df.cod_articulo -- a.cod_articulo es referencia externa
+)
+and a.pre_unitario between 20 and 50
+
+--Con not int
+select *
+from articulos a
+where a.cod_articulo not in (
+    select df.cod_articulo
+    from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura
+    where year(f.fecha) = year(getdate())
+    and a.cod_articulo = df.cod_articulo 
+)
+and a.pre_unitario between 20 and 50
+
+
+--2)Genere un reporte con los clientes que vinieron más de 2 veces el año pasado. 
+
+select *
+from clientes c
+where 2< (
+    select count(*)
+    from facturas f
+    where year(f.fecha) = year(getdate())-1
+    and f.cod_cliente = c.cod_cliente
+)
+
+
+
+--3)Se quiere saber qué clientes no vinieron entre el 12/12/2007 y el 13/7/2010.
+
+--Not Exists
+select *
+from clientes c
+where not exists (
+    select *
+    from facturas f
+    where f.fecha between '12/12/2007' and '13/07/2010'
+    and f.cod_cliente = c.cod_cliente
+)
+
+--Not in
+select *
+from clientes c
+where c.cod_cliente not in (
+    select f.cod_cliente
+    from facturas f
+    where f.fecha between '12/12/2007' and '13/07/2010'
+    and f.cod_cliente = c.cod_cliente
+)
+
+
+
+
+
+
+
 
 
 
