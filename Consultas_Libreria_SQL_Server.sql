@@ -1032,6 +1032,8 @@ not int: <> all
 exists: true  <-- si la subconsuta devuelve datos
 not exist: false  <--Si no recibimos resultados trabaja con los datos de la consulta principal
 si negamos un dato negativo no da un positivo
+
+numero = all <-- todas las coincidencia
 */
 
 
@@ -1098,17 +1100,64 @@ where c.cod_cliente not in (
 
 
 
+--4)Liste los datos de las facturas de los clientes que solo vienen a comprar en febrero 
+--es decir que todas las veces que vino a comprar haya sido en el mes de febrero (y no otro mes).
 
 
 
+select f.*
+from facturas f join clientes c on c.cod_cliente = f.cod_cliente
+where 2 = all(
+    select month(fecha)
+    from facturas f
+    where c.cod_cliente = f.cod_cliente
+)
+
+--5)Muestre los datos de las facturas para los casos 
+--en que por año se hayan hecho menos de 9 facturas.
+
+select f.*
+from facturas f
+where 9 >(
+    select count(fa.nro_factura)
+    from facturas fa
+    where year(fa.fecha) = year(f.fecha)
+)
 
 
+--6. Emita un reporte con las facturas cuyo importe total haya sido superior a 300 
+--(incluya en el reporte los datos de los artículos vendidos y los importes).
 
 
+select  a.descripcion 'Descripcion', df.pre_unitario * df.cantidad 'Importe', f.*
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where 300 <  (
+    select sum(df.pre_unitario* df.cantidad)
+    from detalle_facturas df
+    where df.nro_factura = f.nro_factura
+)
 
 
+--7. Se quiere saber qué vendedores nunca atendieron a estos clientes: 1 y 6. 
+--Muestre solamente el nombre del vendedor.
 
+--not exists
+select v.nom_vendedor 'Vendedores'
+from vendedores v
+where not exists (
+    select f.cod_cliente
+    from facturas f 
+    where f.cod_cliente in (1,6)
+    and f.cod_vendedor = v.cod_vendedor
+)
 
-
-
+--not in
+select v.nom_vendedor 'Vendedores'
+from vendedores v
+where v.cod_vendedor not in (
+    select f.cod_vendedor
+    from facturas f 
+    where f.cod_cliente in (1,6)
+    and f.cod_vendedor = v.cod_vendedor
+)
 
