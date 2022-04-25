@@ -1247,6 +1247,19 @@ where 40 < all (
 --12.Emitir un listado que muestre número de factura, fecha, artículo, cantidad e importe; 
 --para los casos en que la cantidad total de unidades vendidas sean superior a 80.
 
+
+select f.nro_factura,f.fecha,a.descripcion, df.cantidad, df.pre_unitario * df.cantidad 'Importe'
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where 80 < all (
+    select sum(dft.cantidad)
+    from detalle_facturas dft
+    where dft.nro_factura = df.nro_factura
+)
+
+
+--13.Liste número de factura, fecha, cliente, artículo e importe 
+--para los casos en que alguno de los importes de esa factura sean menores a 100. 
+
 select f.nro_factura, f.fecha, c.ape_cliente +space(2)+ c.nom_cliente as 'Cliente', a.descripcion, df.pre_unitario * df.cantidad as 'Importe'
 from facturas f join detalle_facturas df  on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo join clientes c on 
 c.cod_cliente = f.cod_cliente
@@ -1255,3 +1268,5 @@ where 100 > any (
     from detalle_facturas dft
     where dft.nro_factura = f.nro_factura
 )
+
+
