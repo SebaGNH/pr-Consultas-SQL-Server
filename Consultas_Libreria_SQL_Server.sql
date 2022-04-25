@@ -1247,7 +1247,6 @@ where 40 < all (
 --12.Emitir un listado que muestre número de factura, fecha, artículo, cantidad e importe; 
 --para los casos en que la cantidad total de unidades vendidas sean superior a 80.
 
-
 select f.nro_factura,f.fecha,a.descripcion, df.cantidad, df.pre_unitario * df.cantidad 'Importe'
 from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
 where 80 < all (
