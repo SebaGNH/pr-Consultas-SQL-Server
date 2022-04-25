@@ -1161,3 +1161,97 @@ where v.cod_vendedor not in (
     and f.cod_vendedor = v.cod_vendedor
 )
 
+
+--8.Listar los datos de los artículos que superaron el promedio del Importe de ventas de $ 200.
+
+
+select*
+from articulos a
+where 200 < (
+    select avg(df.pre_unitario*df.cantidad)
+    from detalle_facturas df
+    where df.cod_articulo = a.cod_articulo
+)
+
+
+--9. Que artículos nunca se vendieron? 
+--Tenga además en cuenta que su nombre comience con letras que van de la “d” a la “p”. 
+--Muestre solamente la descripción de artículo.
+
+--not exists
+select a.descripcion
+from articulos a
+where not exists (
+    select df.cod_articulo
+    from detalle_facturas df
+    where df.cod_articulo = a.cod_articulo
+)
+and a.descripcion like '[d-p]%'
+
+--not in -- en este caso no es necesario igualar en el where, pero si en el not exists
+select a.descripcion
+from articulos a
+where a.cod_articulo not in (
+    select df.cod_articulo
+    from detalle_facturas df
+    --where df.cod_articulo = a.cod_articulo
+)
+and a.descripcion like '[d-p]%'
+
+
+--10. Liste número de factura, fecha y cliente para
+--los casos en que ese cliente haya sido atendido alguna vez por el vendedor de código 3.
+
+--Tres maneras  diferentes de resolverlo, el ideal es el primero
+select f.nro_factura, f.fecha, c.ape_cliente +space(2)+c.nom_cliente 'Cliente'
+from facturas f join clientes c on c.cod_cliente = f.cod_cliente
+where 3 = any (
+    select v.cod_vendedor
+    from vendedores v 
+    where v.cod_vendedor = f.cod_vendedor
+)
+
+
+select f.nro_factura, f.fecha, c.ape_cliente +space(2)+c.nom_cliente 'Cliente'
+from facturas f join clientes c on c.cod_cliente = f.cod_cliente
+where exists (
+    select v.cod_vendedor
+    from vendedores v
+    where v.cod_vendedor = f.cod_vendedor
+    and v.cod_vendedor = 3
+)
+
+
+select f.nro_factura, f.fecha, c.ape_cliente +space(2)+c.nom_cliente 'Cliente'
+from facturas f join clientes c on c.cod_cliente = f.cod_cliente
+where f.cod_vendedor in (
+    select v.cod_vendedor
+    from vendedores v
+    where v.cod_vendedor = f.cod_vendedor
+    and v.cod_vendedor = 3
+)
+
+
+--11.Listar número de factura, fecha, artículo, cantidad e importe 
+--para los casos en que todas las cantidades (de unidades vendidas de cada artículo) de esa factura sean superiores a 40.
+
+select f.nro_factura, f.fecha,a.descripcion, df.cantidad, df.pre_unitario * df.cantidad 'Importe'
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where 40 < all (
+    select dft.cantidad
+    from detalle_facturas dft
+    where dft.nro_factura = df.nro_factura
+)
+
+
+--12.Emitir un listado que muestre número de factura, fecha, artículo, cantidad e importe; 
+--para los casos en que la cantidad total de unidades vendidas sean superior a 80.
+
+select f.nro_factura, f.fecha, c.ape_cliente +space(2)+ c.nom_cliente as 'Cliente', a.descripcion, df.pre_unitario * df.cantidad as 'Importe'
+from facturas f join detalle_facturas df  on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo join clientes c on 
+c.cod_cliente = f.cod_cliente
+where 100 > any (
+    select dft.pre_unitario * dft.cantidad
+    from detalle_facturas dft
+    where dft.nro_factura = f.nro_factura
+)
