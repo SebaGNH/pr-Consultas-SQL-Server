@@ -1269,3 +1269,79 @@ where 100 > any (
 )
 
 
+
+
+--Guía de Ejercicios Nº 10:       Subconsultas en el Having --------------------------------------------------------------
+
+
+--1. Se quiere saber cuando realizó su primer venta cada vendedor 
+--y cuanto fue el importe total de las ventas que ha realizado
+--Mostrar estos datos en un listado solo para los casos en que su importe promedio de vendido sea superior al importe promedio general (importe promedio de todas las facturas).
+
+select min(f.fecha)'Fecha', v.ape_vendedor +space(2)+ v.nom_vendedor as 'Vendedor', sum(df.pre_unitario * df.cantidad) as 'Importe'
+from vendedores v join facturas f on f.cod_vendedor = v.cod_vendedor join detalle_facturas df on df.nro_factura = f.nro_factura
+group by v.ape_vendedor +space(2)+ v.nom_vendedor 
+having avg(df.pre_unitario * df.cantidad) > (
+    select avg(dft.cantidad*dft.pre_unitario)
+    from detalle_facturas dft
+)
+
+
+--2.Liste los montos totales mensuales facturados por cliente y además el promedio de ese monto y el promedio del precio de artículos 
+--Todos esto datos correspondientes a periodo que va desde el 1 de febrero al 30 de agosto del 2014.
+--Solo muestre los datos si esos montos totales sea superior o igual al promedio global.
+
+select sum(df.cantidad*df.pre_unitario)'Monto total', month(f.fecha)'Mes', c.ape_cliente+space(2)+c.nom_cliente 'Cliente', avg(df.pre_unitario*df.cantidad)'Monto promedio', avg(a.pre_unitario) 'Promedio del artículo'
+from facturas f join clientes c on c.cod_cliente = f.cod_cliente join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where f.fecha between '01/02/2014' and '30/08/2014'
+group by month(f.fecha), year(f.fecha), c.ape_cliente+space(2)+c.nom_cliente
+having sum(df.cantidad*df.pre_unitario) >=  (
+    select avg(dft.cantidad*dft.pre_unitario)
+    from detalle_facturas dft
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
