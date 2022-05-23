@@ -1301,9 +1301,20 @@ having sum(df.cantidad*df.pre_unitario) >=  (
 )
 
 
+--3.Por cada artículo que se tiene a la venta, se quiere saber el importe promedio vendido, la cantidad total vendida por artículo, 
+--para los casos en que los números de factura no sean uno de los siguientes: 2, 10, 7, 13, 22 
+--y que ese importe promedio sea inferior al importe promedio de ese artículo.
 
-
-
+select a.descripcion 'Artículo', avg(df.pre_unitario * df.cantidad)'Importe Promedio', sum(df.cantidad)'Cantidad Vendida'
+from articulos a join detalle_facturas df on df.cod_articulo = a.cod_articulo
+where df.nro_factura not in (2,10,7,13,22)
+group by a.descripcion, a.cod_articulo
+having avg(df.pre_unitario * df.cantidad) < (
+    select avg(pre_unitario * cantidad)
+    from detalle_facturas 
+    where cod_articulo = a.cod_articulo
+)
+-- Se debe poner en el group by el elemento que estamos igualando
 
 
 
