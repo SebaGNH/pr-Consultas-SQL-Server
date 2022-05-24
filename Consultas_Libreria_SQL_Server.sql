@@ -1313,16 +1313,20 @@ having avg(df.pre_unitario * df.cantidad) < (
     select avg(pre_unitario * cantidad)
     from detalle_facturas 
     where cod_articulo = a.cod_articulo
+)-- Se debe poner en el group by el elemento que estamos igualando
+
+
+
+--4.Listar la cantidad total vendida, el importe y promedio vendido por fecha, 
+--siempre que esa cantidad sea superior al promedio de la cantidad global. Rotule y ordene.
+
+select sum(df.cantidad) 'Cantidad Total vendida', sum(df.pre_unitario * df.cantidad)'Importe total',avg(df.pre_unitario * df.cantidad)'Importe promedio', f.fecha
+from detalle_facturas df join facturas f on f.nro_factura = df.nro_factura
+group by f.fecha
+having sum(df.cantidad) > (
+    select avg(cantidad)
+    from detalle_facturas
 )
--- Se debe poner en el group by el elemento que estamos igualando
-
-
-
-
-
-
-
-
 
 
 
