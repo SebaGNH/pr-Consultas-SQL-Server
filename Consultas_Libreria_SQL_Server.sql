@@ -1330,7 +1330,19 @@ having sum(df.cantidad) > (
 
 
 
+--5.Se quiere saber el promedio del importe vendido y la fecha de la primer venta por fecha y artículo 
+--para los casos en que las cantidades vendidas oscilen entre 5 y 20 
+--y que ese importe sea superior al importe promedio de ese artículo.
 
+select avg(df.pre_unitario* df.cantidad)'Importe Promedio', min(f.fecha) 'Primer venta'
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura join articulos a on a.cod_articulo = df.cod_articulo
+where df.cantidad between 5 and 20
+group by f.fecha, a.cod_articulo,a.descripcion
+having sum(df.pre_unitario * df.cantidad) > (
+    select avg(pre_unitario * cantidad)
+    from detalle_facturas
+    where cod_articulo = a.cod_articulo
+)
 
 
 
