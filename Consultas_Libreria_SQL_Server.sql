@@ -1346,8 +1346,16 @@ having sum(df.pre_unitario * df.cantidad) > (
 
 
 
+--6. Emita un listado con los importes diarios facturados
+--que sean inferior al importe promedio general.
 
-
+select sum(df.cantidad*df.pre_unitario), f.fecha
+from facturas f join detalle_facturas df on df.nro_factura = f.nro_factura
+group by f.fecha
+having sum(df.cantidad*df.pre_unitario) < (
+    select avg(pre_unitario * cantidad)
+    from detalle_facturas
+)   
 
 
 
